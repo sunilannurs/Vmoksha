@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %}
+{% block script %}
+    <script>
+
+        function getState(state_id, state) {
+
+            $('#stateID').html("<option value=''>Select</option>");
+            $('#cityID').html("<option value=''>Select</option>");
+            console.log("id", state_id, state)
+
+            $.get("{% url 'preference:get_states' %}", {'country_id': state_id}, function (data) {
+                console.log("zdfsdfasd", data)
+                $.each(data.states, function (key, value) {
+                    $('#stateID').append("<option value='" + value.state_id + "'>" + value.state + "</option>");
+                    console.log("asdfaf", value)
+
+                });
+                $('#stateID').val(state);
+            });
+            return;
+        }
+
+        $("#countryID").change(function () {
+            console.log("hello")
+            var id = $("#countryID").val();
+            if (id != '') {
+                console.log("id", id)
+                getState(id, '');
+
+            }
+        });
+
+        function getCity(city_id, city) {
+            $('#cityID').html("<option value=''>Select</option>");
+            $('#locationID').html("<option value=''>Select</option>");
+
+            $.get("{% url 'preference:get_cities' %}", {'state_id': city_id}, function (data) {
+                $.each(data.cities, function (key, value) {
+                    $('#cityID').append("<option value='" + value.city_id + "'>" + value.city + "</option>");
+                });
+                $('#cityID').val(city);
+            });
+            return;
+        }
+
+        $("#stateID").change(function () {
+            var id = $("#stateID").val();
+            if (id != '') {
+                getCity(id, '');
+            }
+        });
+
+
+        function getLocation(location_id, location) {
+            $('#locationID').html("<option value=''>Select</option>");
+
+            $.get("{% url 'preference:get_locations' %}", {'city_id': location_id}, function (data) {
+                console.log("dfata", data.location)
+                $.each(data.location, function (key, value) {
+                    $('#locationID').append("<option value='" + value.location_id + "'>" + value.location + "</option>");
+                });
+                $('#locationID').val(location);
+            });
+            return;
+        }
+
+        $("#cityID").change(function () {
+            var id = $("#cityID").val();
+            console.log("loaction", id)
+            if (id != '') {
+                getLocation(id, '');
+            }
+        });
+
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="card ">
+
+                    <div class="card-header text-center"><h4>Vmoksha</h4></div>
+
+                    <form class="p-3" action="." method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                        <li  {% if message.tags %}
+                                            class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <div class="row ">
+
+                            <div class="col-lg-8 col-md-8 col-xs col-md">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-xs col-md">
+                                        <div class="form-group">
+                                            <label for="">Country</label>
+                                            <select name="country" id="countryID" class="form-control" required>
+                                                {% for each in country %}
+                                                    <option value="{{ each.country_id }}">{{ each.country }}</option>
+                                                {% endfor %}
+
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-xs col-md">
+                                        <div class="form-group">
+                                            <label for="">State</label>
+
+                                            <select id="stateID" name="state" class="form-control" required>
+                                                <option value="" selected="" disabled="">State</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-xs col-md">
+                                        <div class="form-group">
+                                            <label for="">City</label>
+                                            <select id="cityID" name="city" class="form-control" required>
+                                                <option value="" selected="" disabled="">City</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-xs col-md">
+                                        <div class="form-group">
+                                            <label for="">Location</label>
+                                            <select id="locationID" name="location" class="form-control" required>
+                                                <option value="" selected="" disabled="">Location</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <hr class="hr-line-dashed">
+                        <div class="form-footer text-center">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+{% endblock %}
